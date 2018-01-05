@@ -7,7 +7,7 @@ import datetime
 
 SQLALCHEMY_DATABASE_URI="mysql://{username}:{password}@{host}/{databasename}".format(
     username="root",
-    password="Lakshmi@123",
+    password="XXXXXX",
     host="localhost",
     databasename="orders")
 
