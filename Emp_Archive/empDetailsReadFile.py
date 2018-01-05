@@ -1,4 +1,5 @@
-import csv,os,shutil,glob,EmpObject
+import csv,os,glob,EmpObject
+import shutil,errno
 
 def writeToDb(filename,*,errors='warn'):
     '''
@@ -29,13 +30,29 @@ def writeToDb(filename,*,errors='warn'):
                 continue # skips to the next row
     return result
 
-cwd=os.getcwd()
+path=os.getcwd()
+
 for name in glob.glob('*.csv'):
     try:
         result=writeToDb(name,errors='warn')
+        archivePath=path+'/archive'
+        if not os.path.exists(archivePath):
+            try:
+                os.makedirs(archivePath)
+            except OSError as e:
+                if e.errno != errno.EEXIST:
+                    raise
+        filename_without_ext,extension = os.path.splitext(name)
         if result=="Success":
-            shutil.move(cwd + '/' + name, cwd +'/archive')
-            #os.rename(cwd + '/' + name, cwd +'/archive')
+            new_file_name = filename_without_ext+"_Processed"
+            new_file_name_with_ext = new_file_name+extension
+            os.rename(os.path.join(path,name),os.path.join(path,new_file_name_with_ext))
+            shutil.move(path + '/' + new_file_name_with_ext, archivePath)
+        else:
+            new_file_name = filename_without_ext+"_NotProcessed"
+            new_file_name_with_ext = new_file_name+extension
+            shutil.move(path + '/' + new_file_name_with_ext, archivePath)
+            os.rename(os.path.join(path,name),os.path.join(path,new_file_name_with_ext))
         print(result)
     except Exception as e:
         print('Exception : ',name)
